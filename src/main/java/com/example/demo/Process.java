@@ -7,6 +7,7 @@ public class Process {
     private int arrivalTime;
     private int burstTime;
     private int priority;
+    private int quantum;
 
     Process(int pid, String name, String color, int arrivalTime, int burstTime, int priority) {
         this.pid = pid;
@@ -40,4 +41,6 @@ public class Process {
     public int getPriority() {
         return priority;
     }
+
+    public int getQuantum(){return quantum; }
 }

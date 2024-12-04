@@ -40,6 +40,10 @@ public class Process {
         return burstTime;
     }
 
+    public void setBurstTime(int burstTime) {
+        this.burstTime = burstTime;
+    }
+
     public int getPriority() {
         return priority;
     }
@@ -47,12 +51,18 @@ public class Process {
     public int getWaitingTime() {
       return waitingTime;
     }
-  
+
     public void setWaitingTime(int waitingTime) {
       this.waitingTime = waitingTime;
     }
-  
-    public int getQuantum(){
-      return quantum;
+
+    public int getQuantum(){return quantum; }
+
+    public void setQuantum(int quantum){
+        this.quantum = quantum;
+    }
+
+    public void setPid(int pid) {
+        this.pid = pid;
     }
 }

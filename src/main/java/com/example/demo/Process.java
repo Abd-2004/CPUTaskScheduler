@@ -10,7 +10,7 @@ public class Process {
     private int waitingTime;
     private int quantum;
 
-    Process(int pid, String name, String color, int arrivalTime, int burstTime, int priority) {
+    Process(int pid, String name, String color, int arrivalTime, int burstTime, int priority, int quantum) {
         this.pid = pid;
         this.name = name;
         this.color = color;
@@ -18,6 +18,11 @@ public class Process {
         this.burstTime = burstTime;
         this.priority = priority;
         this.waitingTime = 0;
+        this.quantum = quantum;
+    }
+
+    Process(int pid, String name, String color, int arrivalTime, int burstTime, int priority) {
+        this(pid, name, color, arrivalTime, burstTime, priority, 0);
     }
 
     public int getPid() {

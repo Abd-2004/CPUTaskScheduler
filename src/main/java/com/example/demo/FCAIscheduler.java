@@ -6,7 +6,7 @@ import static java.lang.Math.ceil;
 
 
 
-public class FCAIschedueler extends Scheduler {
+public class FCAIscheduler extends Scheduler {
 
     int calcFactor(int Priority, int Arrival, double V1, int RemBurst, double V2){
         return (int)ceil((10 - Priority) + ceil(Arrival / V1) + ceil(RemBurst / V2));
@@ -53,14 +53,6 @@ public class FCAIschedueler extends Scheduler {
         quantumWithID.set(current.getPid(), quantumWithID.get(current.getPid()) - 1);
     }
 
-    private void mapLinks(ArrayList<Process> processList , Map<Integer, Integer> originalToMappedPID, Map<Integer, Integer> mappedToOriginalPID)
-    {
-        for (int i = 0; i < processList.size(); i++) {
-            originalToMappedPID.put(processList.get(i).getPid(), i);
-            mappedToOriginalPID.put(i, processList.get(i).getPid());
-            processList.get(i).setPid(i); // Update PID in the process list
-        }
-    }
     @Override
     ArrayList<Integer> createSchedule(ArrayList<Process> processList) {
 
@@ -70,13 +62,9 @@ public class FCAIschedueler extends Scheduler {
         double v1 = getV1(processList), v2 = getV2(processList);
         ArrayList<Integer> quantumWithID = new ArrayList<>();//for keeping trace of current quantum of each process
         ArrayList<Integer> schedule = new ArrayList<>();//for return
-        Map<Integer, Integer> originalToMappedPID = new HashMap<>();//original to 0..n-1
-        Map<Integer, Integer> mappedToOriginalPID = new HashMap<>();//0..n-1 to original
         Queue<Integer> queue = new LinkedList<>();
         Process prevProcess = null;
 
-        //linking the PIDS to start from 0 to n-1 and to return original ids
-        mapLinks(processList, originalToMappedPID, mappedToOriginalPID);
 
         //initialize quantumWithID wth initial IDS
         for (Process process : processList) quantumWithID.add(process.getQuantum());
@@ -115,7 +103,7 @@ public class FCAIschedueler extends Scheduler {
                 double q = Math.min(ceil(processList.get(bestID).getQuantum() * 0.4), processList.get(bestID).getBurstTime());
                 //adds them to schedule and updates both quantum and burst time
                 for (int i = 0; i < q && processList.get(bestID).getBurstTime() > 0;i++) {
-                    schedule.add(mappedToOriginalPID.get(bestID));
+                    schedule.add(bestID);
                     consumeOneTimeUnit(processList,quantumWithID,bestID);
                     //updates the counter
                     cntr++;
@@ -174,7 +162,7 @@ public class FCAIschedueler extends Scheduler {
                         //checks if the process has quantum left
                         if(quantumWithID.get(bestID) != 0) {
                             consumeOneTimeUnit(processList, quantumWithID, bestID);
-                            schedule.add(mappedToOriginalPID.get(bestID));
+                            schedule.add(bestID);
                         }
                         else
                         {
@@ -219,9 +207,10 @@ public class FCAIschedueler extends Scheduler {
                 //time keeper
                 cntr++;
             }
-            else
+            else {
                 schedule.add(-1);
                 cntr++;
+            }
         }
         return schedule;
     }

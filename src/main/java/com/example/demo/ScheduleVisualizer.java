@@ -21,22 +21,24 @@ public class ScheduleVisualizer extends Application {
     private static ArrayList<Integer> schedule;
     private static String schedulerName;
 
+    //these variables are properties of how the graph will be drawn.
+    //these variables are static because the launch() function creates another instance of this class,
+    //so if any non-static variables were changed in the constructor below, these changes would not be carried over to the new instance.
     private static int canvasWidth = 1920;
     private static int canvasHeight = 950;
     private static int graphWidth = 960;
     private static int maxProcessHeight = 70;
     private static int graphHeight = maxProcessHeight*10;
-    private int graphStartX = 90;
-    private int graphStartY = 60;
-    private int xAxisLabelOffset = 20;
-    private int infoSpacingX = 95;
-    private int infoWidth = canvasWidth - graphWidth - graphStartX - 40;
-    private int statisticsSpacingY = 30;
-    int maximumXLabels = 20;
-
+    private static int graphStartX = 90;
+    private static int graphStartY = 60;
+    private static int xAxisLabelOffset = 20;
+    private static int infoSpacingX = 95;
+    private static int infoWidth = canvasWidth - graphWidth - graphStartX - 40;
+    private static int statisticsSpacingY = 30;
+    private static int maximumXLabels = 20;
     private static int pNum, processHeight, gridCellWidth;
 
-    public ScheduleVisualizer() {}
+    public ScheduleVisualizer() {} //we need a default constructor because launch() calls it
 
     public ScheduleVisualizer(ArrayList<Process> processList, Scheduler scheduler) {
         processes = new ArrayList<>();
@@ -44,6 +46,7 @@ public class ScheduleVisualizer extends Application {
         schedule = scheduler.createSchedule(processList);
         schedulerName = scheduler.getSchedulerName();
 
+        //here the dimensions of the canvas and grid cells are decided based on the number of processes and length of the schedule.
         pNum = processes.size();
         processHeight = graphHeight / pNum;
         if (processHeight > maxProcessHeight) processHeight = maxProcessHeight;
@@ -73,13 +76,14 @@ public class ScheduleVisualizer extends Application {
         //background
         drawRect(gc, 0, 0, canvasWidth, canvasHeight, Color.LIGHTGRAY);
 
+        //title
         writeText(gc, "CPU Scheduling Graph", graphStartX, graphStartY - 15, Color.DARKGREEN, 30, 0);
 
         //grid lines
         int lastx = graphStartX;
         for (int x = graphStartX; x <= graphStartX+graphWidth; x += gridCellWidth) {
             drawRect(gc, x, graphStartY, 1, graphHeight, Color.DARKSLATEGRAY); //vertical lines
-            lastx = x;
+            lastx = x; //we need this in order to know where to stop when drawing the horizontal lines
         }
         for (int y = graphStartY; y <= graphStartY + graphHeight; y += processHeight) {
             drawRect(gc, graphStartX, y, lastx-graphStartX, 1, Color.DARKSLATEGRAY); //horizontal lines
@@ -125,7 +129,9 @@ public class ScheduleVisualizer extends Application {
         Double avgWaitingTime = 0.0, avgTurnAroundTime = 0.0;
         for (int i = 0; i < pNum; i++) {
             int pid = processes.get(i).getPid();
+            //waiting time is (total time spent in system) - (time spent working), which is expressed by the formula below
             waitingTimes.add(lastExecution.get(pid) - processes.get(i).getArrivalTime() - processes.get(i).getBurstTime());
+            //turn around time is the difference between the last time the process was executing and the first time it started executing
             turnAroundTimes.add(lastExecution.get(pid) - firstExecution.get(pid));
             avgWaitingTime += waitingTimes.getLast();
             avgTurnAroundTime += turnAroundTimes.getLast();
@@ -154,7 +160,6 @@ public class ScheduleVisualizer extends Application {
             gc.strokeRect(infoStartX + info.length*infoSpacingX, y - 20, 25, 25);
         }
 
-
         //stats
         writeText(gc, "Statistics", graphStartX, graphStartY + graphHeight + 75, Color.DARKBLUE, 30, 0);
         String[] stats = {"Schedule Name: " + schedulerName, "Average Waiting Time: " + avgWaitingTime, "Average Turn Around Time: " + avgTurnAroundTime};
@@ -163,11 +168,13 @@ public class ScheduleVisualizer extends Application {
         }
     }
 
+    //this is used whenever we want to draw a rectangle
     private void drawRect(GraphicsContext gc, int x, int y, int width, int height, Color color) {
         gc.setFill(color);
         gc.fillRect(x, y, width, height);
     }
 
+    //this is used whenever we want to write text. the alignment variable should be from 0 to 2 (0 left, 1 middle, 2 right)
     private void writeText(GraphicsContext gc, String text, int x, int y, Color color, int size, int alignment) {
         Font font = new Font("Arial", size);
         gc.setFill(color);
@@ -177,13 +184,14 @@ public class ScheduleVisualizer extends Application {
             Text tx = new Text(text);
             tx.setFont(font);
             int textWidth = (int)tx.getBoundsInLocal().getWidth();
-            if (alignment == 1) x = x-textWidth/2;
-            else x = x-textWidth;
+            if (alignment == 1) x -= textWidth/2;
+            else x -= textWidth;
             gc.fillText(text, x, y);
         }
         gc.fillText(text, x, y);
     }
 
+    //this is used to get the index of a process from its pid. we need this when we're drawing the process blocks.
     private Process getProcess(int pid) {
         Process result = null;
         for (Process p : processes) {
@@ -192,6 +200,7 @@ public class ScheduleVisualizer extends Application {
         return result;
     }
 
+    //this is the function that should be called by main()
     public void generateGraph() {
         launch();
     }

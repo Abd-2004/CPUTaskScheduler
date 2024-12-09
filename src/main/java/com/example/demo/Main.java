@@ -12,8 +12,6 @@ public class Main {
         Color[] colors = {Color.RED, Color.GREEN, Color.BLUE, Color.ORANGE, Color.MAGENTA, Color.YELLOW, Color.CYAN, Color.LIME, Color.BROWN, Color.INDIGO};
         ArrayList<Process> processes = new ArrayList<>();
 
-        Scheduler scheduler = new PriorityScheduler();
-
         boolean askForPid = false;
         boolean askForName = false;
         boolean askForColor = false;
@@ -25,6 +23,19 @@ public class Main {
         Scanner scn =  new Scanner(System.in);
         System.out.print("Enter number of processes: ");
         int numOfProcesses = scn.nextInt();
+        System.out.print("Enter value of context switch overhead: ");
+        int c = scn.nextInt();
+
+        Scheduler[] schedulers = {new FCAIscheduler(c), new PriorityScheduler(c), new ShortestJobFirst(c), new ShortestRemainingTimeFirst(c)};
+        System.out.println("Choose which scheduler should be used:");
+        for (int i = 0; i < schedulers.length; i++) {
+            System.out.println("#" + (i+1) + ": " + schedulers[i].getSchedulerName());
+        }
+        System.out.print("Choice: ");
+        int scheduler = scn.nextInt();
+        if (scheduler <= 1) scheduler = 1;
+        if (scheduler >= schedulers.length) scheduler = schedulers.length;
+
         for (int i = 0; i < numOfProcesses; i++) {
             int pid, arrivalTime, burstTime, priority, quantum;
             String name;
@@ -51,22 +62,22 @@ public class Main {
             }
             else {
                 color = colors[i%colors.length];
-                String c = color.toString();
-                c = "#" + c.substring(2, c.length()-2);
-                System.out.println(c);
+                String col = color.toString();
+                col = "#" + col.substring(2, col.length()-2);
+                System.out.println(col);
             }
 
             System.out.print("Arrival time of process #" + (i+1) + ": ");
             if (askForArrivalTime) arrivalTime = scn.nextInt();
             else {
-                arrivalTime = rand.nextInt(0, 100);
+                arrivalTime = rand.nextInt(0, 80);
                 System.out.println(arrivalTime);
             }
 
             System.out.print("Burst time of process #" + (i+1) + ": ");
             if (askForBurstTime) burstTime = scn.nextInt();
             else {
-                burstTime = rand.nextInt(5, 30);
+                burstTime = rand.nextInt(1, 40);
                 System.out.println(burstTime);
             }
 
@@ -80,14 +91,14 @@ public class Main {
             System.out.print("Quantum of process #" + (i+1) + ": ");
             if (askForQuantum) quantum = scn.nextInt();
             else {
-                quantum = rand.nextInt(1, 20);
+                quantum = rand.nextInt(1, 10);
                 System.out.println(quantum);
             }
 
             Process p = new Process(pid, name, color, arrivalTime, burstTime, priority, quantum);
             processes.add(p);
         }
-        ScheduleVisualizer sv = new ScheduleVisualizer(processes, scheduler);
+        ScheduleVisualizer sv = new ScheduleVisualizer(processes, schedulers[scheduler-1]);
         sv.generateGraph();
     }
 }

@@ -4,8 +4,9 @@ import java.util.*;
 import static java.lang.Math.ceil;
 
 public class FCAIscheduler extends Scheduler {
-    FCAIscheduler() {
+    FCAIscheduler(int contextSwitchOverhead) {
         schedulerName = "FCAI Scheduler";
+        this.contextSwitchOverhead = contextSwitchOverhead;
     }
 
     int calcFactor(int Priority, int Arrival, double V1, int RemBurst, double V2){
@@ -65,7 +66,7 @@ public class FCAIscheduler extends Scheduler {
     ArrayList<Integer> createSchedule(ArrayList<Process> processList) {
         //Initialization of used variables
         boolean flag = true, newArrival = false,first = true, repeatedLoop = false;
-        int bestID = -1, cntr = 0, bestFactor = -1;
+        int bestID = -1, cntr = 0, bestFactor = Integer.MIN_VALUE;
         double v1 = getV1(processList), v2 = getV2(processList);
         ArrayList<Integer> quantumWithID = new ArrayList<>();//for keeping trace of current quantum of each process
         ArrayList<Integer> schedule = new ArrayList<>();//for return
@@ -74,7 +75,7 @@ public class FCAIscheduler extends Scheduler {
         Queue<Integer> queue = new LinkedList<>();
         Process prevProcess = null;
 
-        //linking the PIDS to start from 0 to n-1 and to return original ids
+        //linking the PIDs to start from 0 to n-1 and to return original ids
         mapLinks(processList, originalToMappedPID, mappedToOriginalPID);
 
         //initialize quantumWithID wth initial IDS
@@ -100,7 +101,16 @@ public class FCAIscheduler extends Scheduler {
                     }
                 }
             }
-            else repeatedLoop = false;
+            else {
+                repeatedLoop = false;
+                for (int i = 0; i < contextSwitchOverhead;i++) {
+                    cntr++;
+                    schedule.add(-1);
+                    //checks for any values entered during that time
+                    for(int x = 0; x < processList.size(); x++)
+                        if(processList.get(x).getArrivalTime() == cntr) queue.add(x);
+                }
+            }
             //checks if a new process entered
             if(newArrival)
             {

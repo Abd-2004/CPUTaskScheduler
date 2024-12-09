@@ -4,10 +4,9 @@ import java.util.*;
 
 public class PriorityScheduler extends Scheduler{
 
-    private int contextSwitchOverhead = 2;
-
-    public PriorityScheduler() {
+    public PriorityScheduler(int contextSwitchOverhead) {
         schedulerName = "Priority Scheduler";
+        this.contextSwitchOverhead = contextSwitchOverhead;
     }
     @Override
     public ArrayList<Integer> createSchedule(ArrayList<Process> processList) {
@@ -21,7 +20,7 @@ public class PriorityScheduler extends Scheduler{
                         best = p;
                         continue;
                     }
-                    if (p.getPriority() > best.getPriority()) best = p;
+                    if (p.getPriority() < best.getPriority()) best = p;
                     else if (p.getPriority() == best.getPriority() && p.getArrivalTime() < best.getArrivalTime()) best = p;
                 }
             }

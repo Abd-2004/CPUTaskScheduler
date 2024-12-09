@@ -6,8 +6,9 @@ public class ShortestJobFirst extends Scheduler{
 
     private int bracketLength = 100;
 
-    public ShortestJobFirst() {
+    public ShortestJobFirst(int contextSwitchOverhead) {
         schedulerName = "Shortest Job First";
+        this.contextSwitchOverhead = contextSwitchOverhead;
     }
     @Override
     public ArrayList<Integer> createSchedule(ArrayList<Process> processList) {
@@ -26,8 +27,8 @@ public class ShortestJobFirst extends Scheduler{
                     if (bracket != bestBracket) { //age brackets prevent starvation by prioritizing processes in higher brackets (aka the oldest process and criteria 2)
                         if (bracket > bestBracket) best = p;
                     }
-                    else if (p.getBurstTime() < best.getBurstTime()) best = p;  //compares according to burst time(crtieria 3)
-                    else if (p.getBurstTime() == best.getBurstTime() && p.getArrivalTime() < best.getArrivalTime()) best = p; //comapres according to arrival time as a last resort (criteria 4)
+                    else if (p.getBurstTime() < best.getBurstTime()) best = p;  //compares according to burst time(criteria 3)
+                    else if (p.getBurstTime() == best.getBurstTime() && p.getArrivalTime() < best.getArrivalTime()) best = p; //compares according to arrival time as a last resort (criteria 4)
                 }
             }
             if (best == null) { //handles the case the cpu being idle/no process is in the ready queue
@@ -43,6 +44,11 @@ public class ShortestJobFirst extends Scheduler{
                 curTime++;
             }
             processList.remove(best);  //removes the process from the list
+            for (int i = 0; i < contextSwitchOverhead; i++) { //adds the context switch overhead
+                schedule.add(-1);
+                curTime++;
+            }
+
         }
         return schedule;
     }

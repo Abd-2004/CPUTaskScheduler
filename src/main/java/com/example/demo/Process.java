@@ -23,7 +23,7 @@ public class Process {
         this.quantum = quantum;
     }
 
-    Process(Process p) {
+    Process(Process p) { //basically a copy constructor
         this.pid = p.pid;
         this.name = p.name;
         this.color = p.color;

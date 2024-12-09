@@ -1,13 +1,9 @@
 package com.example.demo;
 
 import java.util.*;
-
 import static java.lang.Math.ceil;
 
-
-
 public class FCAIscheduler extends Scheduler {
-
     FCAIscheduler() {
         schedulerName = "FCAI Scheduler";
     }
@@ -67,7 +63,6 @@ public class FCAIscheduler extends Scheduler {
     }
     @Override
     ArrayList<Integer> createSchedule(ArrayList<Process> processList) {
-
         //Initialization of used variables
         boolean flag = true, newArrival = false,first = true, repeatedLoop = false;
         int bestID = -1, cntr = 0, bestFactor = -1;
@@ -84,7 +79,6 @@ public class FCAIscheduler extends Scheduler {
 
         //initialize quantumWithID wth initial IDS
         for (Process process : processList) quantumWithID.add(process.getQuantum());
-
 
         //fill Schedule
         while(flag)
@@ -156,7 +150,6 @@ public class FCAIscheduler extends Scheduler {
                         if (currentID != bestIndex && processList.get(currentID).getBurstTime()!=0) {
                             queue.add(currentID);
                         }
-
                     }
                     //updating the prevProcess to contain the value of the process we are about to remove and adds it back to the queue
                     prevProcess = processList.get(bestID);
@@ -193,7 +186,6 @@ public class FCAIscheduler extends Scheduler {
                             cntr--;
                             repeatedLoop = true;
                         }
-
                     }
                     //checks if the queue has values
                     else if(!queue.isEmpty())

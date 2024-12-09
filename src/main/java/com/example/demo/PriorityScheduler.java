@@ -3,6 +3,9 @@ package com.example.demo;
 import java.util.*;
 
 public class PriorityScheduler extends Scheduler{
+
+    private int contextSwitchOverhead = 2;
+
     public PriorityScheduler() {
         schedulerName = "Priority Scheduler";
     }
@@ -32,6 +35,10 @@ public class PriorityScheduler extends Scheduler{
                 curTime++;
             }
             processList.remove(best);
+            for (int i = 0; i < contextSwitchOverhead; i++) {
+                curTime++;
+                schedule.add(-1);
+            }
         }
         return schedule;
     }

@@ -3,7 +3,10 @@ package com.example.demo;
 import java.util.*;
 
 public class ShortestRemainingTimeFirst extends Scheduler{
+
+    private int contextSwitchOverhead = 2;
     private int bracketLength = 100;
+
     public ShortestRemainingTimeFirst() {
         schedulerName = "Shortest Remaining Time First";
     }
@@ -11,6 +14,7 @@ public class ShortestRemainingTimeFirst extends Scheduler{
     public ArrayList<Integer> createSchedule(ArrayList<Process> processList) {
         ArrayList<Integer> schedule = new ArrayList<>();
         int curTime = 0;
+        Process prevProcess = null;
         while (!processList.isEmpty()) {
             Process best = null;
             for (Process p : processList) { //find which process should go next
@@ -37,9 +41,16 @@ public class ShortestRemainingTimeFirst extends Scheduler{
             for (Process p : processList) {
                 if (p != best && p.getArrivalTime() <= curTime) p.setWaitingTime(p.getWaitingTime()+1); //update waiting times for all processes that are not running now
             }
+            if (best != prevProcess) {
+                for (int i = 0; i < contextSwitchOverhead; i++) {
+                    curTime++;
+                    schedule.add(-1);
+                }
+            }
             schedule.add(best.getPid());
             curTime++;
             best.setBurstTime(best.getBurstTime()-1);
+            prevProcess = best;
             if (best.getBurstTime() == 0) processList.remove(best);
         }
         return schedule;

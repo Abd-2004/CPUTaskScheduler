@@ -3,7 +3,9 @@ package com.example.demo;
 import java.util.*;
 
 public class ShortestJobFirst extends Scheduler{
+
     private int bracketLength = 100;
+
     public ShortestJobFirst() {
         schedulerName = "Shortest Job First";
     }

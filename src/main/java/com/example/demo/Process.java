@@ -1,16 +1,18 @@
 package com.example.demo;
 
+import javafx.scene.paint.Color;
+
 public class Process {
     private int pid;
     private String name;
-    private String color;
+    private Color color;
     private int arrivalTime;
     private int burstTime;
     private int priority;
     private int waitingTime;
     private int quantum;
 
-    Process(int pid, String name, String color, int arrivalTime, int burstTime, int priority, int quantum) {
+    Process(int pid, String name, Color color, int arrivalTime, int burstTime, int priority, int quantum) {
         this.pid = pid;
         this.name = name;
         this.color = color;
@@ -21,8 +23,15 @@ public class Process {
         this.quantum = quantum;
     }
 
-    Process(int pid, String name, String color, int arrivalTime, int burstTime, int priority) {
-        this(pid, name, color, arrivalTime, burstTime, priority, 0);
+    Process(Process p) {
+        this.pid = p.pid;
+        this.name = p.name;
+        this.color = p.color;
+        this.arrivalTime = p.arrivalTime;
+        this.burstTime = p.burstTime;
+        this.priority = p.priority;
+        this.waitingTime = p.waitingTime;
+        this.quantum = p.quantum;
     }
 
     public int getPid() {
@@ -33,7 +42,7 @@ public class Process {
         return name;
     }
 
-    public String getColor() {
+    public Color getColor() {
         return color;
     }
 

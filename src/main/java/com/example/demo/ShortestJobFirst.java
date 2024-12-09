@@ -8,7 +8,7 @@ public class ShortestJobFirst extends Scheduler{
         processList.sort(Comparator.comparing(Process::getArrivalTime));
         Queue<Process> readyQueue = new PriorityQueue<>(Comparator.comparing(Process::getBurstTime));
         int totalTime= processList.stream().mapToInt(Process::getBurstTime).sum();  //loops to get the total running time for the processes
-        ArrayList<Integer> schedule=new ArrayList<>(totalTime);  //the returned schedule for the graph representation
+        ArrayList<Integer> schedule=new ArrayList<>();  //the returned schedule for the graph representation
         int currentTime=0;  //used as a tracker for time and index for the schedule array
         int arrivingProcess=0;
         while(currentTime<totalTime){
@@ -17,7 +17,7 @@ public class ShortestJobFirst extends Scheduler{
                 arrivingProcess++;
             }
             if (readyQueue.isEmpty()) {  //handles if no process is currently using the CPU
-                schedule.add(currentTime, -1);
+                schedule.add(-1);
                 currentTime++;
                 continue;
             }

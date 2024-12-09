@@ -25,6 +25,7 @@ public class ShortestJobFirst extends Scheduler{
                         if (bracket > bestBracket) best = p;
                     }
                     else if (p.getBurstTime() < best.getBurstTime()) best = p;
+                    else if (p.getBurstTime() == best.getBurstTime() && p.getArrivalTime() < best.getArrivalTime()) best = p;
                 }
             }
             if (best == null) { //no process needs to run at this time

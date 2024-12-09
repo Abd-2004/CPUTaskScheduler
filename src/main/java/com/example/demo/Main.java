@@ -12,7 +12,7 @@ public class Main {
         Color[] colors = {Color.RED, Color.GREEN, Color.BLUE, Color.ORANGE, Color.MAGENTA, Color.YELLOW, Color.CYAN, Color.LIME, Color.BROWN, Color.INDIGO};
         ArrayList<Process> processes = new ArrayList<>();
 
-        Scheduler scheduler = new FCAIscheduler();
+        Scheduler scheduler = new PriorityScheduler();
 
         boolean askForPid = false;
         boolean askForName = false;

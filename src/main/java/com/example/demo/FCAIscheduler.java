@@ -8,6 +8,10 @@ import static java.lang.Math.ceil;
 
 public class FCAIscheduler extends Scheduler {
 
+    FCAIscheduler() {
+        schedulerName = "FCAI Scheduler";
+    }
+
     int calcFactor(int Priority, int Arrival, double V1, int RemBurst, double V2){
         return (int)ceil((10 - Priority) + ceil(Arrival / V1) + ceil(RemBurst / V2));
     }

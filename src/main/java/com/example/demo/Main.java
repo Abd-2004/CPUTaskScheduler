@@ -12,7 +12,7 @@ public class Main {
         Color[] colors = {Color.RED, Color.GREEN, Color.BLUE, Color.ORANGE, Color.MAGENTA, Color.YELLOW, Color.CYAN, Color.LIME, Color.BROWN, Color.INDIGO};
         ArrayList<Process> processes = new ArrayList<>();
 
-        Scheduler scheduler = new ShortestJobFirst();
+        Scheduler scheduler = new FCAIscheduler();
 
         boolean askForPid = false;
         boolean askForName = false;
@@ -51,19 +51,22 @@ public class Main {
             }
             else {
                 color = colors[i%colors.length];
+                String c = color.toString();
+                c = "#" + c.substring(2, c.length()-2);
+                System.out.println(c);
             }
 
             System.out.print("Arrival time of process #" + (i+1) + ": ");
             if (askForArrivalTime) arrivalTime = scn.nextInt();
             else {
-                arrivalTime = rand.nextInt(0, 10);
+                arrivalTime = rand.nextInt(0, 100);
                 System.out.println(arrivalTime);
             }
 
             System.out.print("Burst time of process #" + (i+1) + ": ");
             if (askForBurstTime) burstTime = scn.nextInt();
             else {
-                burstTime = rand.nextInt(1, 50);
+                burstTime = rand.nextInt(5, 30);
                 System.out.println(burstTime);
             }
 

@@ -21,17 +21,20 @@ public class ScheduleVisualizer extends Application {
     private static ArrayList<Integer> schedule;
     private static String schedulerName;
 
-    private int canvasWidth = 1900;
-    private int canvasHeight = 950;
-    private int graphStartX = 120;
+    private static int canvasWidth = 1920;
+    private static int canvasHeight = 950;
+    private static int graphWidth = 960;
+    private static int maxProcessHeight = 70;
+    private static int graphHeight = maxProcessHeight*10;
+    private int graphStartX = 90;
     private int graphStartY = 60;
-    private int maxProcessHeight = 65;
-    private int graphHeight = maxProcessHeight*10;
-    private int graphWidth = 1000;
     private int xAxisLabelOffset = 20;
-    private int infoSpacingX = 125;
+    private int infoSpacingX = 95;
+    private int infoWidth = canvasWidth - graphWidth - graphStartX - 40;
     private int statisticsSpacingY = 30;
     int maximumXLabels = 20;
+
+    private static int pNum, processHeight, gridCellWidth;
 
     public ScheduleVisualizer() {}
 
@@ -40,6 +43,14 @@ public class ScheduleVisualizer extends Application {
         for (Process p : processList) processes.add(new Process(p));
         schedule = scheduler.createSchedule(processList);
         schedulerName = scheduler.getSchedulerName();
+
+        pNum = processes.size();
+        processHeight = graphHeight / pNum;
+        if (processHeight > maxProcessHeight) processHeight = maxProcessHeight;
+        else graphHeight = processHeight * pNum;
+        gridCellWidth = graphWidth / schedule.size();
+        canvasWidth -= graphWidth - gridCellWidth * schedule.size();
+        graphWidth = gridCellWidth * schedule.size();
     }
 
     @Override
@@ -62,14 +73,7 @@ public class ScheduleVisualizer extends Application {
         //background
         drawRect(gc, 0, 0, canvasWidth, canvasHeight, Color.LIGHTGRAY);
 
-        int pNum = processes.size();
-
         writeText(gc, "CPU Scheduling Graph", graphStartX, graphStartY - 15, Color.DARKGREEN, 30, 0);
-
-        int processHeight = graphHeight / pNum;
-        if (processHeight > maxProcessHeight) processHeight = maxProcessHeight;
-        else graphHeight = processHeight * pNum;
-        int gridCellWidth = graphWidth / schedule.size();
 
         //grid lines
         int lastx = graphStartX;
@@ -83,14 +87,14 @@ public class ScheduleVisualizer extends Application {
 
         //labels for processes
         for (int i = 0, y = graphStartY + processHeight/2+5; i < pNum; i++, y += processHeight) {
-            writeText(gc, processes.get(i).getName(), graphStartX-10, y, Color.BLACK, 20, 2);
+            writeText(gc, processes.get(i).getName(), graphStartX-10, y, Color.BLACK, 16, 2);
         }
 
         //x axis numbers
         int mod = (schedule.size()+maximumXLabels+1)/maximumXLabels;
         for (int i = 0, x = graphStartX; x <= graphStartX + graphWidth; i++, x += gridCellWidth) {
             if (i%mod != 0) continue;
-            writeText(gc, Integer.toString(i), x, graphStartY + graphHeight + xAxisLabelOffset, Color.BLACK, 18, 1);
+            writeText(gc, Integer.toString(i), x, graphStartY + graphHeight + xAxisLabelOffset, Color.BLACK, 14, 1);
             drawRect(gc, x, graphStartY, 2, graphHeight, Color.BLACK);
         }
 
@@ -104,29 +108,9 @@ public class ScheduleVisualizer extends Application {
             }
         }
 
-        //info
-        int infoStartX = graphStartX + graphWidth + 30;
-        drawRect(gc, infoStartX - 10, graphStartY, canvasWidth - 30 - infoStartX, graphHeight, Color.DARKGRAY);
-        drawRect(gc, infoStartX - 10, graphStartY-25, canvasWidth - 30 - infoStartX, 25, Color.LIGHTSLATEGRAY);
-        gc.strokeRect(infoStartX - 10, graphStartY-25, canvasWidth - 30 - infoStartX, graphHeight+25);
-        gc.strokeLine(infoStartX - 10, graphStartY, canvasWidth - 40, graphStartY);
-        writeText(gc, "Processes Information", infoStartX, graphStartY - 30, Color.DARKGREEN, 26, 0);
-        String[] labels = {"Name", "PID", "Arrival Time", "Priority", "Burst Time", "Color"};
-        for (int i = 0; i < labels.length; i++) {
-            writeText(gc, labels[i], infoStartX + i*infoSpacingX, graphStartY - 5, Color.DARKRED, 22, 0);
-        }
-        for (int i = 0, y = graphStartY + processHeight/2+5; i < pNum; i++, y += processHeight) {
-            Process p = processes.get(i);
-            String[] info = {p.getName(), "" + p.getPid(), "" + p.getArrivalTime(), "" + p.getPriority(), "" + p.getBurstTime()};
-            for (int j = 0; j < info.length; j++) {
-                writeText(gc, info[j], infoStartX + j*infoSpacingX, y, Color.DARKBLUE, 20, 0);
-            }
-            drawRect(gc, infoStartX + info.length*infoSpacingX, y - 20, 25, 25, p.getColor());
-            gc.strokeRect(infoStartX + info.length*infoSpacingX, y - 20, 25, 25);
-        }
-
-        //calculate awt and atat
+        //calculate waiting times and turn around times
         Map<Integer, Integer> firstExecution = new HashMap<>(), lastExecution = new HashMap<>();
+        ArrayList<Integer> waitingTimes = new ArrayList<>(), turnAroundTimes = new ArrayList<>();
         for (int i = 0; i < pNum; i++) {
             int pid = processes.get(i).getPid();
             firstExecution.put(pid, -1);
@@ -141,11 +125,35 @@ public class ScheduleVisualizer extends Application {
         Double avgWaitingTime = 0.0, avgTurnAroundTime = 0.0;
         for (int i = 0; i < pNum; i++) {
             int pid = processes.get(i).getPid();
-            avgWaitingTime += lastExecution.get(pid) - processes.get(i).getArrivalTime() - processes.get(i).getBurstTime();
-            avgTurnAroundTime += lastExecution.get(pid) - firstExecution.get(pid);
+            waitingTimes.add(lastExecution.get(pid) - processes.get(i).getArrivalTime() - processes.get(i).getBurstTime());
+            turnAroundTimes.add(lastExecution.get(pid) - firstExecution.get(pid));
+            avgWaitingTime += waitingTimes.getLast();
+            avgTurnAroundTime += turnAroundTimes.getLast();
         }
         avgWaitingTime /= pNum;
         avgTurnAroundTime /= pNum;
+
+        //info
+        int infoStartX = graphStartX + graphWidth + 30;
+        drawRect(gc, infoStartX - 10, graphStartY, infoWidth, graphHeight, Color.DARKGRAY);
+        drawRect(gc, infoStartX - 10, graphStartY-25, infoWidth, 25, Color.LIGHTSLATEGRAY);
+        gc.strokeRect(infoStartX - 10, graphStartY-25, infoWidth, graphHeight+25);
+        gc.strokeLine(infoStartX - 10, graphStartY, infoStartX - 10 + infoWidth, graphStartY);
+        writeText(gc, "Processes Information", infoStartX, graphStartY - 30, Color.DARKGREEN, 26, 0);
+        String[] labels = {"Name", "PID", "Arrival", "Priority", "Burst", "Quantum", "WT", "TAT", "Color"};
+        for (int i = 0; i < labels.length; i++) {
+            writeText(gc, labels[i], infoStartX + i*infoSpacingX, graphStartY - 5, Color.DARKRED, 19, 0);
+        }
+        for (int i = 0, y = graphStartY + processHeight/2+5; i < pNum; i++, y += processHeight) {
+            Process p = processes.get(i);
+            String[] info = {p.getName(), "" + p.getPid(), "" + p.getArrivalTime(), "" + p.getPriority(), "" + p.getBurstTime(), "" + p.getQuantum(), "" + waitingTimes.get(i), "" + turnAroundTimes.get(i)};
+            for (int j = 0; j < info.length; j++) {
+                writeText(gc, info[j], infoStartX + j*infoSpacingX, y, Color.DARKBLUE, 20, 0);
+            }
+            drawRect(gc, infoStartX + info.length*infoSpacingX, y - 20, 25, 25, p.getColor());
+            gc.strokeRect(infoStartX + info.length*infoSpacingX, y - 20, 25, 25);
+        }
+
 
         //stats
         writeText(gc, "Statistics", graphStartX, graphStartY + graphHeight + 75, Color.DARKBLUE, 30, 0);

@@ -219,9 +219,10 @@ public class FCAIscheduler extends Scheduler {
                 //time keeper
                 cntr++;
             }
-            else
+            else {
                 schedule.add(-1);
-            cntr++;
+                cntr++;
+            }
         }
         return schedule;
     }

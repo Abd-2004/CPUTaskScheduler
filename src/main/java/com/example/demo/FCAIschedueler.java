@@ -126,7 +126,7 @@ public class FCAIschedueler extends Scheduler {
                 newArrival = false;
             }
             //normal processing and factor comparison
-            else{
+            else if(bestID != -1){
                 int bestIndex = bestID;
                 int size = queue.size();
                 //checks if there are any processes waiting
@@ -140,7 +140,8 @@ public class FCAIschedueler extends Scheduler {
                             bestFactor = currentFactor;
                             bestIndex = currentID;
                         }
-                        queue.add(currentID); // Re-enqueue
+                        if(processList.get(currentID).getBurstTime()!=0)
+                            queue.add(currentID); // Re-enqueue
                     }
 
                 //making sure the process was swapped
@@ -148,14 +149,15 @@ public class FCAIschedueler extends Scheduler {
                     //removing the best
                     for (int i = 0; i < size; i++) {
                         int currentID = queue.poll();
-                        if (currentID != bestIndex) {
+                        if (currentID != bestIndex && processList.get(currentID).getBurstTime()!=0) {
                             queue.add(currentID);
                         }
 
                     }
                     //updating the prevProcess to contain the value of the process we are about to remove and adds it back to the queue
                     prevProcess = processList.get(bestID);
-                    queue.add(bestID);
+                    if(processList.get(bestID).getBurstTime()!=0)
+                        queue.add(bestID);
                     //updates the current process working
                     bestID = bestIndex;
                     bestFactor = processFactor(processList.get(bestID), v1, v2);
@@ -179,7 +181,8 @@ public class FCAIschedueler extends Scheduler {
                             //since the quantum is done we put the working function back to the end of the queue,
                             // and we make the first of the queue to be the current process
                             prevProcess = processList.get(bestID);
-                            queue.add(bestID);
+                            if(processList.get(bestID).getBurstTime()!=0)
+                                queue.add(bestID);
                             bestID = queue.poll();
                             bestFactor = processFactor(processList.get(bestID), v1, v2);
                             newArrival = true;
@@ -193,7 +196,8 @@ public class FCAIschedueler extends Scheduler {
                     {
                         //makes the first queue element work and deducts the counter, so it can work
                         prevProcess = processList.get(bestID);
-                        queue.add(bestID);
+                        if(processList.get(bestID).getBurstTime()!=0)
+                            queue.add(bestID);
                         bestID = queue.poll();
                         bestFactor = processFactor(processList.get(bestID), v1, v2);
                         newArrival = true;
@@ -215,6 +219,9 @@ public class FCAIschedueler extends Scheduler {
                 //time keeper
                 cntr++;
             }
+            else
+                schedule.add(-1);
+                cntr++;
         }
         return schedule;
     }
